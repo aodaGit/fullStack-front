@@ -1,0 +1,119 @@
+# 前端自动化部署
+# 仅前端代码提交到main分支时部署
+name: "frontEnd-realease"
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+env:
+  NODE_VERSION: "16.x"
+  BUILD_DIST_NAME: "front-end-app"
+  BUILD_DIST_PATH: "./build"
+
+jobs:
+  # 1.安全扫描
+  Security-scan:
+    name: Security-scan
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["javascript", "TypeScript"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{matrix.language}}"
+
+  # 2. 代码打包
+  Build:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+
+    needs: Security-scan
+    strategy:
+    fail-fast: false
+    matrix:
+      node-version: [12.x, 14.x, 16.x] # 支持多个版本的node，避免高低版本问题
+
+    steps:
+      # 2.1 拉取代码
+      - name: Chectout from git repo
+        uses: actions/checkout@v3
+
+      # 2.2 设置node版本
+      - name: Set up node version
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "yarn"
+          cache-dependency-path: "./yarn.lock" # 设置缓存路径
+
+      # 2.3 下载依赖
+      - name: Install depends
+        run: |
+          yarn
+
+      # 2.4 格式化文档
+      - name: Lint the code
+        run: |
+          yarn lint-js
+          yarn lint-style
+          yarn prettier
+
+      # 2.5 打包
+      - name: Build
+        run: |
+          yarn build
+
+      # 2.6 上传打包产物
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.BUILD_DIST_NAME }}
+          path: ${{ env.BUILD_DIST_PATH }}
+          retention-days: 1 # 保留天数
+
+  # 3.代码部署
+  Deploy:
+    permissions:
+      contents: none
+    runs-on: ubuntu-latest
+    # 部署这一步需要上一步打包好的产物
+    needs: Build
+
+    steps:
+      - name: checkout from git repo
+        uses: actions/checkout@v2
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.BUILD_DIST_NAME }}
+          path: ${{ env.BUILD_DIST_PATH }}
+
+      - name: "Deploy to vercel"
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
