@@ -28,9 +28,12 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "cross-env  NODE_ENV=development react-app-rewired start ",
+    "dev": "cross-env  NODE_ENV=development react-app-rewired start ",
     "build": "cross-env  NODE_ENV=production react-app-rewired build",
-    "lint": "lint-staged"
+    "lint-staged": "lint-staged",
+    "lint-js": "eslint src --ext .ts,.tsx,.js,.jsx --fix",
+    "lint-style": "stylelint src/**/*.{css,scss,less} --fix --custom-syntax postcss-scss",
+    "prettier": "prettier src/**/**/*.{js,jsx,tsx,ts,scss,md,json} --config .prettierrc --write"
   },
   "browserslist": {
     "production": [
@@ -46,18 +49,17 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged",
-      "commit-msg": "node script/verify-commit.js"
+      "pre-commit": "lint-staged"
     }
   },
   "lint-staged": {
-    "src/**/*.scss": [
-      "stylelint --fix  --custom-syntax postcss-scss"
+    "./src/**/*.scss": [
+      "stylelint src --fix  --custom-syntax postcss-scss"
     ],
-    "src/**/*.{js,jsx,ts,tsx}": [
+    "./src/**/*.{js,jsx,ts,tsx}": [
       "eslint src --ext .ts,.tsx,.js,.jsx --fix"
     ],
-    "src/**/*.{js,jsx,tsx,ts,scss,md,json}": [
+    "./src/**/*.{js,jsx,tsx,ts,scss,md,json}": [
       "prettier --config .prettierrc --write"
     ]
   },

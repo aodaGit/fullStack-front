@@ -4,7 +4,7 @@ import styles from './index.module.scss'
 const Explain: React.FC<any> = () => {
   return (
     <div className={styles.explain}>
-      <div className={styles.title}>react 前端工程化说明</div>
+      <div className={styles.title}>react 前端工程化简单说明</div>
       <ul className={styles.subTitle}>
         <li>项目结构说明</li>
         <div className={styles.text}>
@@ -37,7 +37,7 @@ const Explain: React.FC<any> = () => {
             <p>---config-overriders // webpack配置</p>
           </div>
         </div>
-        <li>TS集成</li>
+        <li>TS集成验证</li>
         <div className={styles.text}>
           <p>
             当前前端三大框架，angular最先内置使用了TS，vue3和react16后也采用了TS编写，因此我们的工程化脚手架
@@ -56,7 +56,7 @@ const Explain: React.FC<any> = () => {
           </p>
         </div>
         <li>CSS-SCSS开发规范</li>
-        <li>git提交规范</li>
+        <li>git提交规范深度验证</li>
         <li>webpack配置</li>
         <li>本地开发proxy代理</li>
       </ul>

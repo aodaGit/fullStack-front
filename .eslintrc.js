@@ -34,8 +34,10 @@ module.exports = {
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
     'react/prop-types': 'off',
-    'react/jsx-filename-extension': 'off', 
+    'react/jsx-filename-extension': 'off',
     '@typescript-eslint/no-unused-vars': ['warn'],
+    'react/jsx-uses-react': 'off',
+    'react/react-in-jsx-scope': 'off',
     'import/extensions': [
       'error',
       'ignorePackages',
